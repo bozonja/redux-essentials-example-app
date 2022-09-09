@@ -1,36 +1,42 @@
-import { nanoid } from '@reduxjs/toolkit'
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
+import { postUpdated } from './postsSlice'
 
-//reducers
-import { postAdded } from './postsSlice'
+export const EditPostForm = ({ match }) => {
+  const { postId } = match.params
 
-export const AddPostForm = () => {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const post = useSelector((state) =>
+    state.posts.find((post) => post.id === postId)
+  )
+
+  const [title, setTitle] = useState(post.title)
+  const [content, setContent] = useState(post.content)
 
   const dispatch = useDispatch()
+  const history = useHistory()
 
   const onTitleChanged = (e) => setTitle(e.target.value)
   const onContentChanged = (e) => setContent(e.target.value)
 
   const onSavePostClicked = () => {
     if (title && content) {
-      dispatch(postAdded(title, content))
-      setTitle('')
-      setContent('')
+      dispatch(postUpdated({ id: post.id, title, content }))
+      history.push(`/posts/${postId}`)
     }
   }
 
   return (
     <section>
-      <h2>AddPostForm</h2>
+      <h2>Edit post</h2>
       <form>
         <label htmlFor="postTitle">Post title:</label>
         <input
           type="text"
           id="postTitle"
           name="postTitle"
+          placeholder="What´s on your mind"
           value={title}
           onChange={onTitleChanged}
         />
